@@ -30,6 +30,7 @@ def _get_io_and_path(api, path):
 def main():
     pass
 
+
 @main.command("ls", help="List projects or files in a project")
 @click.argument("path", type=str, default=".")
 def list_projects_and_files(path):
@@ -57,8 +58,14 @@ def list_projects_and_files(path):
         files = io.listdir(path)
         print("\n".join(files))
 
+
 @main.command("mkdir", help="Create a directory in a project")
-@click.option("-p", "--parents", is_flag=True, help="Create parent directories if they don't exist.")
+@click.option(
+    "-p",
+    "--parents",
+    is_flag=True,
+    help="Create parent directories if they don't exist.",
+)
 @click.argument("path", type=str)
 def make_directory(path, parents):
     api = Api()
@@ -67,7 +74,9 @@ def make_directory(path, parents):
     io.mkdir(path, parents=parents, exist_ok=parents)
 
 
-@main.command("read", help="Reads the file in a project and writes to the standard output")
+@main.command(
+    "read", help="Reads the file in a project and writes to the standard output"
+)
 @click.argument("path", type=str)
 def read(path):
     api = Api()
@@ -76,7 +85,10 @@ def read(path):
     with io.open(path, "rb") as f:
         shutil.copyfileobj(f, sys.stdout.buffer)
 
-@main.command("write", help="Reads the standard input and writes to the file in a project")
+
+@main.command(
+    "write", help="Reads the standard input and writes to the file in a project"
+)
 @click.argument("path", type=str)
 def write(path):
     api = Api()
@@ -84,6 +96,7 @@ def write(path):
     io, path = _get_io_and_path(api, path)
     with io.open(path, "wb+") as f:
         shutil.copyfileobj(sys.stdin.buffer, f)
+
 
 @main.command("rm", help="Remove file or folder from a project")
 @click.argument("path", type=str)
@@ -93,7 +106,10 @@ def remove(path):
     io, path = _get_io_and_path(api, path)
     io.remove(path)
 
-@main.command("download-project", help="Download project as a zip file to the specified path.")
+
+@main.command(
+    "download-project", help="Download project as a zip file to the specified path."
+)
 @click.argument("project", type=str)
 @click.argument("output_path", type=str)
 def download_project(project, output_path):
