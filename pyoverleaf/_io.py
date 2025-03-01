@@ -6,7 +6,14 @@ from ._webapi import Api, ProjectFolder, ProjectFile
 
 
 class ProjectBytesIO(io.BytesIO):
-    def __init__(self, api: Api, project_id: str, file: Optional[ProjectFile] = None, mode: str = "r", update_file = None):
+    def __init__(
+        self,
+        api: Api,
+        project_id: str,
+        file: Optional[ProjectFile] = None,
+        mode: str = "r",
+        update_file=None,
+    ):
         self._api = api
         self._project_id = project_id
         self._file = file
@@ -51,7 +58,9 @@ class ProjectIO:
             self._cached_project_files = self._api.project_get_files(self._project_id)
         return self._cached_project_files
 
-    def _find(self, path: Union[pathlib.PurePath, str]) -> Union[ProjectFolder, ProjectFile, None]:
+    def _find(
+        self, path: Union[pathlib.PurePath, str]
+    ) -> Union[ProjectFolder, ProjectFile, None]:
         current_pointer = self._project_files()
         path = pathlib.PurePath(path)
         for part in path.parts:
@@ -72,7 +81,12 @@ class ProjectIO:
         """
         return self._find(path) is not None
 
-    def open(self, path: Union[pathlib.PurePath, str], mode: str = "r", encoding: Optional[str] = None) -> IO:
+    def open(
+        self,
+        path: Union[pathlib.PurePath, str],
+        mode: str = "r",
+        encoding: Optional[str] = None,
+    ) -> IO:
         """
         Open a file in the project.
 
@@ -81,7 +95,20 @@ class ProjectIO:
         :param encoding: The encoding to use if the file is not opened in binary mode.
         :return: A file-like object.
         """
-        assert mode in ["r", "w", "a", "r+", "w+", "a+", "rb", "wb", "ab", "rb+", "wb+", "ab+"]
+        assert mode in [
+            "r",
+            "w",
+            "a",
+            "r+",
+            "w+",
+            "a+",
+            "rb",
+            "wb",
+            "ab",
+            "rb+",
+            "wb+",
+            "ab+",
+        ]
         binary = False
         if "b" in mode:
             binary = True
@@ -115,14 +142,22 @@ class ProjectIO:
             raise FileNotFoundError("No such file or directory: " + str(path))
 
         def update_file(data):
-            return self._api.project_upload_file(self._project_id, folder_id, filename, data)
+            return self._api.project_upload_file(
+                self._project_id, folder_id, filename, data
+            )
 
         bytes_io = ProjectBytesIO(self._api, self._project_id, file, mode, update_file)
         if not binary:
             return io.TextIOWrapper(bytes_io, encoding=encoding)
         return bytes_io
 
-    def mkdir(self, path: Union[pathlib.PurePath, str], exist_ok: bool = False, *, parents: bool = False) -> None:
+    def mkdir(
+        self,
+        path: Union[pathlib.PurePath, str],
+        exist_ok: bool = False,
+        *,
+        parents: bool = False,
+    ) -> None:
         """
         Create a directory in the project.
 
@@ -140,12 +175,16 @@ class ProjectIO:
                     current_pointer = child
                     if i == len(path.parts) - 1:
                         if not exist_ok:
-                            raise FileExistsError("Cannot create directory: " + str(path))
+                            raise FileExistsError(
+                                "Cannot create directory: " + str(path)
+                            )
                     break
             else:
                 if i < len(path.parts) - 1 and not parents:
                     raise FileNotFoundError("No such file or directory: " + str(path))
-                current_pointer = self._api.project_create_folder(self._project_id, current_pointer.id, part)
+                current_pointer = self._api.project_create_folder(
+                    self._project_id, current_pointer.id, part
+                )
 
     def listdir(self, path: Union[pathlib.PurePath, str]) -> List[str]:
         """
@@ -159,7 +198,9 @@ class ProjectIO:
             raise FileNotFoundError("No such file or directory: " + str(path))
         return [child.name for child in directory.children]
 
-    def remove(self, path: Union[pathlib.PurePath, str], missing_ok: bool = False) -> None:
+    def remove(
+        self, path: Union[pathlib.PurePath, str], missing_ok: bool = False
+    ) -> None:
         """
         Remove a file/directory from the project.
 
